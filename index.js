@@ -49,11 +49,11 @@ const load = Module._load
 
 const patchDeps = deps => {
     for (const [k, v] of Object.entries(deps)) {
-        Module._cache[require.resolve(k)] = v;
+        Module._cache['mock-' + k] = v;
     }
 
     Module._load = function (request) {
-        const key = require.resolve(request);
+        const key = 'mock-' + request;
         if (key in Module._cache) {
             return Module._cache[key];
         }
@@ -64,7 +64,7 @@ const patchDeps = deps => {
 const restoreDeps = deps => {
     Module._load = load;
     for (const k of Object.keys(deps)) {
-        delete Module._cache[require.resolve(k)];
+        delete Module._cache['mock-' + k];
     }
 };
 
