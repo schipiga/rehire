@@ -1,6 +1,5 @@
 "use strict";
 
-const Module = require("module");
 const path = require("path");
 
 const rewire = require("rewire");
@@ -10,17 +9,10 @@ const getCallerPath = () => {
     Error.prepareStackTrace = (_, stack) => stack;
     const stack = new Error().stack.slice(1);
     Error.prepareStackTrace = _;
-    return stack[2].getFileName();
+    return stack[1].getFileName();
 };
 
 const rewire_ = filename => {
-
-    if (filename.startsWith(".")) {
-        const callerPath = getCallerPath();
-        const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
-        filename = path.resolve(callerDir, filename);
-    }
-
     const mod = rewire(filename);
 
     let cache = {};
@@ -45,36 +37,39 @@ const rewire_ = filename => {
     return mod;
 };
 
-const load = Module._load
-
-const patchDeps = deps => {
-    for (const [k, v] of Object.entries(deps)) {
-        Module._cache['mock-' + k] = v;
-    }
-
-    Module._load = function (request) {
-        const key = 'mock-' + request;
-        if (key in Module._cache) {
-            return Module._cache[key];
+const patchDeps = (deps, root) => {
+    for (let [k, v] of Object.entries(deps)) {
+        if (k.startsWith('.')) {
+            k = path.resolve(root, k);
         }
-        return load.apply(this, arguments);
+        require.cache[k] = { exports: v };
     }
 };
 
-const restoreDeps = deps => {
-    Module._load = load;
-    for (const k of Object.keys(deps)) {
-        delete Module._cache['mock-' + k];
+const restoreDeps = (deps, root) => {
+    for (let k of Object.keys(deps)) {
+        if (k.startsWith('.')) {
+            k = path.resolve(root, k);
+        }
+        delete require.cache[k];
     }
 };
 
 const rehire_ = (filename, deps) => {
     deps = deps || {};
-    patchDeps(deps);
+
+    if (filename.startsWith(".")) {
+        const callerPath = getCallerPath();
+        const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
+        filename = path.resolve(callerDir, filename);
+    }
+
+    const root = path.dirname(filename);
+    patchDeps(deps, root);
     try {
         return rewire_(filename);
     } finally {
-        restoreDeps(deps);
+        restoreDeps(deps, root);
     }
 };
 
