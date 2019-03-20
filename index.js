@@ -10,7 +10,7 @@ const getCallerPath = () => {
     Error.prepareStackTrace = (_, stack) => stack;
     const stack = new Error().stack.slice(1);
     Error.prepareStackTrace = _;
-    return stack[1].getFileName();
+    return stack[2].getFileName();
 };
 
 const rewire_ = filename => {
