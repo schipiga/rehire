@@ -1,1 +1,4 @@
 node_modules
+glace.log
+report/
+.nyc_output/
