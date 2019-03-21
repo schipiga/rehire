@@ -1,7 +1,7 @@
 {
   "name": "rehire",
-  "version": "1.0.5",
-  "description": "Improved rewire",
+  "version": "1.0.6",
+  "description": "Easy dependency injection for unit tests (based on rewire)",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js tests",
