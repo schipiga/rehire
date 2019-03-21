@@ -3,7 +3,7 @@ rehire
 
 **Easy monkey-patching for nodejs unit tests**
 
-**rehire** is based [rewire](https://github.com/jhnns/rewire) and extends it with some useful features:
+**rehire** is based on [rewire](https://github.com/jhnns/rewire) and extends it with some useful features:
 
 - method `global` in case if you want use it in global context and not import in each tests file. I found issue, that if to make vanilla `rewire` as global then it detects relative paths wrongly. It's fixed with `rehire`:
 

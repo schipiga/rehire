@@ -164,10 +164,21 @@ suite("index", () => {
         chunk(() => {
             const mod = rewire_("glace-core");
             const error = mod.__get__("error");
+            const help = mod.__get__("help");
+
             mod.__set__("error", "error");
             expect(mod.__get__("error")).to.be.equal("error");
+
             mod.__reset__();
             expect(mod.__get__("error")).to.be.equal(error);
+
+            mod.__set__({ error: "error", help: "help" });
+            expect(mod.__get__("error")).to.be.equal("error");
+            expect(mod.__get__("help")).to.be.equal("help");
+
+            mod.__reset__();
+            expect(mod.__get__("error")).to.be.equal(error);
+            expect(mod.__get__("help")).to.be.equal(help);
         });
     });
 });
