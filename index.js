@@ -41,6 +41,8 @@ const patchDeps = (deps, root) => {
     for (let [k, v] of Object.entries(deps)) {
         if (k.startsWith('.')) {
             k = path.resolve(root, k);
+        } else {
+            k = require.resolve(k);
         }
         require.cache[k] = { exports: v };
     }
@@ -50,6 +52,8 @@ const restoreDeps = (deps, root) => {
     for (let k of Object.keys(deps)) {
         if (k.startsWith('.')) {
             k = path.resolve(root, k);
+        } else {
+            k = require.resolve(k);
         }
         delete require.cache[k];
     }
