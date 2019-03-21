@@ -5,7 +5,7 @@ rehire
 
 **rehire** is based on [rewire](https://github.com/jhnns/rewire) and extends it with some useful features:
 
-- method `global` in case if you want use it in global context and not import in each tests file. I found issue, that if to make vanilla `rewire` as global then it detects relative paths wrongly. It's fixed with `rehire`:
+- method `global` in case if you want to use it in global context and not import in each tests file. I found issue, that if to make vanilla `rewire` as global then it detects relative paths wrongly. It's fixed with `rehire`:
 
      ```javascript
      const rehire = require("rehire");
