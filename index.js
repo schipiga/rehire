@@ -4,7 +4,7 @@ const path = require("path");
 
 const rewire = require("rewire");
 
-const CALLS_DEPTH = 2 // TODO Important to keep it actual
+const CALLS_DEPTH = 2; // Important to keep it actual
 
 const getCallerPath = () => {
     const _ = Error.prepareStackTrace;
@@ -39,13 +39,13 @@ const rewire_ = filename => {
     return mod;
 };
 
-const patchDeps = deps => {
+const patchDependencies = deps => {
     for (const [k, v] of Object.entries(deps)) {
         require.cache[k] = v;
     }
 };
 
-const restoreDeps = deps => {
+const resetDependencies = deps => {
     for (let k of Object.keys(deps)) {
         delete require.cache[k];
     }
@@ -75,7 +75,7 @@ const normalizeModulePath = filename => {
     const callerPath = getCallerPath();
     const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
     return path.resolve(callerDir, filename);
-}
+};
 
 const rehire_ = (filename, deps) => {
     deps = deps || {};
@@ -83,11 +83,11 @@ const rehire_ = (filename, deps) => {
     filename = normalizeModulePath(filename);
     deps = normalizeDependencies(deps, path.dirname(filename));
 
-    patchDeps(deps);
+    patchDependencies(deps);
     try {
         return rewire_(filename);
     } finally {
-        restoreDeps(deps);
+        resetDependencies(deps);
     }
 };
 

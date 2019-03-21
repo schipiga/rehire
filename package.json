@@ -4,7 +4,11 @@
   "description": "Improved rewire",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint index.js tests",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "npm run lint && npm run test:unit && npm run test:e2e",
+    "test:unit": "nyc glace tests/unit --dots",
+    "test:e2e": "glace tests/e2e --dots"
   },
   "repository": {
     "type": "git",
@@ -21,5 +25,21 @@
   },
   "files": [
     "index.js"
-  ]
+  ],
+  "nyc": {
+    "exclude": [
+      "tests"
+    ],
+    "check-coverage": true,
+    "branches": 100,
+    "functions": 100,
+    "lines": 100,
+    "statements": 100
+  },
+  "devDependencies": {
+    "eslint": "^5.15.3",
+    "glace-core": "^2.0.3",
+    "nyc": "^13.3.0",
+    "pre-commit": "^1.2.2"
+  }
 }
