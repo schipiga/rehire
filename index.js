@@ -4,12 +4,14 @@ const path = require("path");
 
 const rewire = require("rewire");
 
+const CALLS_DEPTH = 2 // TODO Important to keep it actual
+
 const getCallerPath = () => {
     const _ = Error.prepareStackTrace;
     Error.prepareStackTrace = (_, stack) => stack;
     const stack = new Error().stack.slice(1);
     Error.prepareStackTrace = _;
-    return stack[1].getFileName();
+    return stack[CALLS_DEPTH].getFileName();
 };
 
 const rewire_ = filename => {
@@ -20,7 +22,7 @@ const rewire_ = filename => {
     const set = mod.__set__;
     mod.__set__ = function (name, stub) {
 
-        if (!Object.keys(cache).includes(name)) {
+        if (!(name in cache)) {
             cache[name] = this.__get__(name);
         }
 
@@ -37,43 +39,55 @@ const rewire_ = filename => {
     return mod;
 };
 
-const patchDeps = (deps, root) => {
-    for (let [k, v] of Object.entries(deps)) {
-        if (k.startsWith('.')) {
-            k = path.resolve(root, k);
-        } else {
-            k = require.resolve(k);
-        }
-        require.cache[k] = { exports: v };
+const patchDeps = deps => {
+    for (const [k, v] of Object.entries(deps)) {
+        require.cache[k] = v;
     }
 };
 
-const restoreDeps = (deps, root) => {
+const restoreDeps = deps => {
     for (let k of Object.keys(deps)) {
-        if (k.startsWith('.')) {
-            k = path.resolve(root, k);
-        } else {
-            k = require.resolve(k);
-        }
         delete require.cache[k];
     }
 };
 
+const normalizeDependencies = (deps, root) => {
+    const result = {};
+    for (const [k, v] of Object.entries(deps)) {
+        result[normalizeDepPath(k, root)] = { exports: v };
+    }
+    return result;
+};
+
+const normalizeDepPath = (dep, root) => {
+    if (dep.startsWith(".")) {
+        dep = path.resolve(root, dep);
+    }
+    return require.resolve(dep);
+};
+
+const normalizeModulePath = filename => {
+    // absolute path or global module, let's rewire resolves it
+    if (!filename.startsWith(".")) {
+        return filename;
+    }
+    // relative path should be normalized because rewire can resolve it proper
+    const callerPath = getCallerPath();
+    const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
+    return path.resolve(callerDir, filename);
+}
+
 const rehire_ = (filename, deps) => {
     deps = deps || {};
 
-    if (filename.startsWith(".")) {
-        const callerPath = getCallerPath();
-        const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
-        filename = path.resolve(callerDir, filename);
-    }
+    filename = normalizeModulePath(filename);
+    deps = normalizeDependencies(deps, path.dirname(filename));
 
-    const root = path.dirname(filename);
-    patchDeps(deps, root);
+    patchDeps(deps);
     try {
         return rewire_(filename);
     } finally {
-        restoreDeps(deps, root);
+        restoreDeps(deps);
     }
 };
 
