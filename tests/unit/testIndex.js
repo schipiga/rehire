@@ -1,6 +1,6 @@
 "use strict";
 
-const rehire = rewire("../../index");
+const rehire = global.rehire("../../");
 
 suite("index", () => {
 
@@ -43,9 +43,18 @@ suite("index", () => {
     });
 
     test("rehire.global()", () => {
+        let glaceRehire;
+
+        beforeChunk(() => {
+            glaceRehire = global.rehire;
+        });
+
+        afterChunk(() => {
+            global.rehire = glaceRehire;
+        });
 
         chunk("sets itself globally", () => {
-            expect(global.rehire).to.be.undefined;
+            delete global.rehire;
             rehire.global();
             expect(global.rehire).to.be.equal(rehire);
         });

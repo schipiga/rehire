@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "eslint": "^5.15.3",
-    "glace-core": "^2.0.3",
+    "glace-core": "^2.0.4",
     "nyc": "^13.3.0",
     "pre-commit": "^1.2.2"
   }
