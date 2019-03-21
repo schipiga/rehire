@@ -7,6 +7,7 @@ module.exports = {
         "SS": true,
         "$": true,
         "$$": true,
+        "rehire": true,
         "CONF": true,
         "sinon": true,
         "before": true,
