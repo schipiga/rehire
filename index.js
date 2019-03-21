@@ -20,13 +20,20 @@ const rewire_ = filename => {
     let cache = {};
 
     const set = mod.__set__;
-    mod.__set__ = function (name, stub) {
+    mod.__set__ = function (obj, mock) {
 
-        if (!(name in cache)) {
-            cache[name] = this.__get__(name);
+        if (typeof(obj) === "string") {
+            obj = { [obj]: mock };
         }
 
-        set.call(this, name, stub);
+        for (const [name, stub] of Object.entries(obj)) {
+
+            if (!(name in cache)) {
+                cache[name] = this.__get__(name);
+            }
+
+            set.call(this, name, stub);
+        }
     };
 
     mod.__reset__ = function () {
