@@ -134,9 +134,17 @@ suite("index", () => {
             rehire.__set__("require", { cache });
         });
 
-        chunk(() => {
+        chunk("sets custom dependencies to cache", () => {
             patchDependencies({ a: 1 });
             expect(cache).to.be.eql({ a: 1 });
+            expect(rehire.__get__("originalDependencies")).to.be.eql({});
+        });
+
+        chunk("replaces original dependencies with custom", () => {
+            cache["a"] = 2;
+            patchDependencies({ a: 1 });
+            expect(cache).to.be.eql({ a: 1 });
+            expect(rehire.__get__("originalDependencies")).to.be.eql({ a: 2 });
         });
     });
 
@@ -145,13 +153,22 @@ suite("index", () => {
 
         beforeChunk(() => {
             resetDependencies = rehire.__get__("resetDependencies");
+            rehire.__set__("originalDependencies", {});
             cache = { a: 1, b: 2 };
             rehire.__set__("require", { cache });
         });
 
-        chunk(() => {
+        chunk("deletes custom dependencies", () => {
             resetDependencies({ a: 1 });
             expect(cache).to.be.eql({ b: 2 });
+            expect(rehire.__get__("originalDependencies")).to.be.eql({});
+        });
+
+        chunk("replaces custom dependencies with original", () => {
+            rehire.__set__("originalDependencies", { a: 2 });
+            resetDependencies({ a: 1 });
+            expect(cache).to.be.eql({ a: 2, b: 2 });
+            expect(rehire.__get__("originalDependencies")).to.be.eql({});
         });
     });
 
