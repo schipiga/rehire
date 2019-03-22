@@ -46,16 +46,26 @@ const rewire_ = filename => {
     return mod;
 };
 
+let originalDependencies = {};
+
 const patchDependencies = deps => {
     for (const [k, v] of Object.entries(deps)) {
+        if (k in require.cache) {
+            originalDependencies[k] = require.cache[k];
+        }
         require.cache[k] = v;
     }
 };
 
 const resetDependencies = deps => {
     for (let k of Object.keys(deps)) {
-        delete require.cache[k];
+        if (k in originalDependencies) {
+            require.cache[k] = originalDependencies[k];
+        } else {
+            delete require.cache[k];
+        }
     }
+    originalDependencies = {};
 };
 
 const normalizeDependencies = (deps, root) => {
