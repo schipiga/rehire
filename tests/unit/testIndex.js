@@ -61,12 +61,14 @@ suite("index", () => {
     });
 
     test("normalizeModulePath()", () => {
-        let normalizeModulePath, getCallerPath;
+        let normalizeModulePath, getCallerPath, resolve;
 
         beforeChunk(() => {
             normalizeModulePath = rehire.__get__("normalizeModulePath");
             getCallerPath = sinon.stub();
             rehire.__set__("getCallerPath", getCallerPath);
+            resolve = sinon.spy(o => o);
+            rehire.__set__("require", { resolve });
         });
 
         [
@@ -82,11 +84,13 @@ suite("index", () => {
         chunk("uses path of module", () => {
             getCallerPath.returns("/usr/module.js");
             expect(normalizeModulePath("./test")).to.be.equal("/usr/test");
+            expect(resolve).to.be.calledOnce;
         });
 
         chunk("uses cwd if repl", () => {
             rehire.__set__("process", { cwd: () => "/cwd" });
             expect(normalizeModulePath("./test")).to.be.equal("/cwd/test");
+            expect(resolve).to.be.calledOnce;
         });
     });
 
