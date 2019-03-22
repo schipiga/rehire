@@ -81,7 +81,7 @@ const normalizeModulePath = filename => {
     // relative path should be normalized because rewire can't resolve it proper
     const callerPath = getCallerPath();
     const callerDir = callerPath ? path.dirname(callerPath) : process.cwd();
-    return path.resolve(callerDir, filename);
+    return require.resolve(path.resolve(callerDir, filename));
 };
 
 const rehire_ = (filename, deps) => {
