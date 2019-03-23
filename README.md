@@ -45,5 +45,8 @@ rehire
     const some_module = require("../third-party-module");
 
     // in tests
-    const my_mod = rehire("../../my-mod", { "fs": { rmdir: () => {} }, "../third-party-module": {} });
+    const my_mod = rehire("../../my-mod", {
+        "fs": { rmdir: () => {} },
+        "../third-party-module": {},
+    });
     ```
