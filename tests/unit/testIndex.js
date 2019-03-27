@@ -185,17 +185,16 @@ suite("index", () => {
     });
 
     test("rewire_()", () => {
-        let rewire_;
+        let rewire_, mod, error, help;
 
         beforeChunk(() => {
             rewire_ = rehire.__get__("rewire_");
+            mod = rewire_("glace-core");
+            error = mod.__get__("error");
+            help = mod.__get__("help");
         });
 
-        chunk(() => {
-            const mod = rewire_("glace-core");
-            const error = mod.__get__("error");
-            const help = mod.__get__("help");
-
+        chunk("__set__/__get__/__reset__", () => {
             mod.__set__("error", "error");
             expect(mod.__get__("error")).to.be.equal("error");
 
@@ -205,6 +204,20 @@ suite("index", () => {
             mod.__set__({ error: "error", help: "help" });
             expect(mod.__get__("error")).to.be.equal("error");
             expect(mod.__get__("help")).to.be.equal("help");
+
+            mod.__reset__();
+            expect(mod.__get__("error")).to.be.equal(error);
+            expect(mod.__get__("help")).to.be.equal(help);
+        });
+
+        chunk("__set__ rewire compatibility", () => {
+            const reset = mod.__set__({ error: "error", help: "help" });
+            expect(mod.__get__("error")).to.be.equal("error");
+            expect(mod.__get__("help")).to.be.equal("help");
+
+            reset();
+            expect(mod.__get__("error")).to.be.equal(error);
+            expect(mod.__get__("help")).to.be.equal(help);
 
             mod.__reset__();
             expect(mod.__get__("error")).to.be.equal(error);
