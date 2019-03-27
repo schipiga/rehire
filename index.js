@@ -26,20 +26,16 @@ const rewire_ = filename => {
             obj = { [obj]: mock };
         }
 
-        for (const [name, stub] of Object.entries(obj)) {
-
+        for (const name of Object.keys(obj)) {
             if (!(name in cache)) {
                 cache[name] = this.__get__(name);
             }
-
-            set.call(this, name, stub);
         }
+        return set.call(this, obj);
     };
 
     mod.__reset__ = function () {
-        for (const [k, v] of Object.entries(cache)) {
-            this.__set__(k, v);
-        }
+        this.__set__(cache);
         cache = {};
     };
 
