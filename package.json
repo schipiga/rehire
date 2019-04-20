@@ -1,7 +1,20 @@
 {
   "name": "rehire",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Easy dependency injection for unit tests (based on rewire)",
+  "keywords": [
+    "dependency",
+    "injection",
+    "di",
+    "mock",
+    "stub",
+    "unit",
+    "test",
+    "fake",
+    "require",
+    "rewire",
+    "proxyquire"
+  ],
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js tests",
